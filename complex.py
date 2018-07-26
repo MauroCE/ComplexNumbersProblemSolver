@@ -5,7 +5,101 @@ want to implement it myself, to better understand complex numbers.
 import matplotlib.pyplot as plt
 import math
 
+# C O N S T A N T S
+UNICODE_PI = "\u03C0"
+PI = 3.141592653589793
 
+
+# H E L P E R   F U N C T I O N S
+def sign(value: float) -> int:
+    """
+    Finds the sign of a number.
+    :param value: Value for which we want to find the sign of.
+    :type value: float
+    :return: sign (1, 0, -1)
+    :rtype: int
+    """
+    if value == 0:
+        return 0
+    return 1 if value > 0 else -1
+
+
+def pretty_angle(angle: float) -> str:
+    """
+    This function tries to change the rad value of an angle to one of the usual
+    angles (e.g. 2pi/3)
+    :param angle: Angle to be pretty-printed
+    :type angle: float
+    :return:
+    """
+    # Loop through the first 20 numbers and try it out
+    for num_factor in range(1, 20):
+        for den_factor in range(1, 20):
+            if round(num_factor * PI / den_factor, 9) == abs(round(angle, 9)):
+                if num_factor == 1:
+                    num_factor = ""
+                if den_factor == 1:
+                    den_factor = ""
+                string = "{num}".format(num=num_factor*sign(angle))
+                string += UNICODE_PI
+                string += "/{denom}".format(denom=den_factor)
+                return string
+    return str(angle)
+
+
+def full_arctan(y: float, x: float, image='complex') -> float:
+    """
+    This function implements my version of the atan2. To read its definition go
+    to:
+    https://en.wikipedia.org/wiki/Atan2#Definition
+    With this function you can choose whether you want to output angles to be
+    within the (-pi, pi) range or not. Notice that this (-pi, pi) range is
+    used with complex numbers. Specifically, the principal argument of a
+    complex number is defined to be within that range.
+
+    :param y: Represents the length of the opposite side, or imaginary part of
+              a complex number.
+    :type y: float
+    :param x: Represents the length of the adjacent side, or real part of a
+              complex number.
+    :type x: float
+    :param image: What type of range we want our output angles to be in. If
+                  'complex' then it is between (-pi, pi), if 'real' it is
+                  between (0, 2pi). Notice that by default it is 'complex'
+                  because this function is more commonly used to compute the
+                  principal argument of a complex number.
+    :type image: str
+    :return: Counter-clockwise angle from x axis to y axis describing the
+             point (x, y) or the principal argument for a complex number.
+    :rtype: float
+
+    """
+    if x > 0:
+        # We are in the range (-pi/2, pi/2) thus arctan is safe
+        return math.atan(y / x)
+    elif x < 0:
+        # (-pi, pi] range, correct range for principal argument
+        if image == 'complex':
+            if y >= 0:
+                # move angle from (-pi/2, 0] to (pi/2, pi]
+                return math.atan(y / x) + PI
+            else:
+                # move angle from (0, pi/ 2) to (-pi, -pi/2)
+                return math.atan(y / x) - PI
+            # [0, 2pi) range
+        elif image == 'real':
+            # from (-pi/2, 0] to (pi/2, pi] or from (0, pi/ 2) to (pi, 3pi/2)
+            return math.atan(y / x) + PI
+        else:
+            raise NotImplemented("Image must be either 'complex' or 'real'.")
+    elif x == 0 and y != 0:
+        # pi/2 for positive, -pi/2 for negative
+        return sign(y) * (PI / 2)
+    else:
+        raise ValueError("Arctan not defined for x=0 and y=0.")
+
+
+# M A I N   C L A S S
 class Complex:
 
     def __init__(self, real: float = 0, img: float = 0):
@@ -235,98 +329,10 @@ class Complex:
         roots = []
         for k in range(0, n):
             # 2kpi / n is the argument of the solutions
-            root = Complex(real=math.cos(2 * k * math.pi / n),
-                           img=math.sin(2 * k * math.pi / n))
+            root = Complex(real=math.cos(2 * k * PI / n),
+                           img=math.sin(2 * k * PI / n))
             roots.append(root)
         return roots
-
-
-
-def sign(value: float) -> int:
-    """
-    Finds the sign of a number.
-    :param value: Value for which we want to find the sign of.
-    :type value: float
-    :return: sign (1, 0, -1)
-    :rtype: int
-    """
-    if value == 0:
-        return 0
-    return 1 if value > 0 else -1
-
-
-UNICODE_PI = "\u03C0"
-
-
-def full_arctan(y: float, x: float, image='complex') -> float:
-    """
-    This function implements my version of the atan2. To read its definition go
-    to:
-    https://en.wikipedia.org/wiki/Atan2#Definition
-    With this function you can choose whether you want to output angles to be
-    within the (-pi, pi) range or not. Notice that this (-pi, pi) range is
-    used with complex numbers. Specifically, the principal argument of a
-    complex number is defined to be within that range.
-
-    :param y: Represents the length of the opposite side, or imaginary part of
-              a complex number.
-    :type y: float
-    :param x: Represents the length of the adjacent side, or real part of a
-              complex number.
-    :type x: float
-    :param image: What type of range we want our output angles to be in. If
-                  'complex' then it is between (-pi, pi), if 'real' it is
-                  between (0, 2pi). Notice that by default it is 'complex'
-                  because this function is more commonly used to compute the
-                  principal argument of a complex number.
-    :type image: str
-    :return: Counter-clockwise angle from x axis to y axis describing the
-             point (x, y) or the principal argument for a complex number.
-    :rtype: float
-
-    """
-    if x > 0:
-        # We are in the range (-pi/2, pi/2) thus arctan is safe
-        return math.atan(y / x)
-    elif x < 0:
-        # (-pi, pi] range, correct range for principal argument
-        if image == 'complex':
-            if y >= 0:
-                # move angle from (-pi/2, 0] to (pi/2, pi]
-                return math.atan(y / x) + math.pi
-            else:
-                # move angle from (0, pi/ 2) to (-pi, -pi/2)
-                return math.atan(y / x) - math.pi
-            # [0, 2pi) range
-        elif image == 'real':
-            # from (-pi/2, 0] to (pi/2, pi] or from (0, pi/ 2) to (pi, 3pi/2)
-            return math.atan(y / x) + math.pi
-        else:
-            raise NotImplemented("Image must be either 'complex' or 'real'.")
-    elif x == 0 and y != 0:
-        # pi/2 for positive, -pi/2 for negative
-        return sign(y) * (math.pi / 2)
-    else:
-        raise ValueError("Arctan not defined for x=0 and y=0.")
-
-
-def pretty_angle(angle):
-    """
-    This function tries to change the rad value of an angle to one of the usual
-    angles (e.g. 2pi/3)
-    :param angle:
-    :return:
-    """
-    # Loop through the first 20 numbers and try it out
-    for num_factor in range(1, 20):
-        for den_factor in range(1, 20):
-            if round(num_factor * math.pi / den_factor, 9) == abs(round(angle, 9)):
-                if num_factor == 1:
-                    num_factor = ""
-                if den_factor == 1:
-                    den_factor = ""
-                return "{nu}\u03C0/{de}".format(nu=num_factor*sign(angle), de=den_factor)
-    return str(angle)
 
 
 if __name__ == "__main__":
@@ -348,7 +354,7 @@ if __name__ == "__main__":
     ax1 = a.plot()
     _ = b.plot(ax1)
     plt.legend()
-    #plt.show()
+    # plt.show()
     print("*" * 20, "Modulus", "*" * 20)
     print("|a| = ", abs(a))
     print("|a| = ", a.modulus)
@@ -369,4 +375,3 @@ if __name__ == "__main__":
     print("*" * 20, "Unity Roots", "*" * 20)
     for r in Complex.find_n_unity_roots(3):
         print(r.to_polar())
-
