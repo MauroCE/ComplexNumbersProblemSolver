@@ -50,7 +50,7 @@ class Complex:
         # Want to have "a + bi", "a", "bi"
         # Want to avoid "+ bi" or "a + "
         if self.real != 0 and self.img < 0:
-            string += " - "  # img will already have -
+            string += " - "  # images will already have -
         elif self.real != 0 and self.img > 0:
             string += " + "
         elif self.real == 0 and self.img < 0:
@@ -117,7 +117,7 @@ class Complex:
         if isinstance(other, int) or isinstance(other, float):
             return Complex(self.real * other, self.img * other)
         elif isinstance(other, Complex):
-            # real = (ac - bd) ; img = (ad + bc)
+            # real = (ac - bd) ; images = (ad + bc)
             real = self.real * other.real - self.img * other.img
             img = self.real * other.img + self.img * other.real
             return Complex(real, img)
@@ -321,6 +321,10 @@ def pretty_angle(angle):
     for num_factor in range(1, 20):
         for den_factor in range(1, 20):
             if round(num_factor * math.pi / den_factor, 9) == abs(round(angle, 9)):
+                if num_factor == 1:
+                    num_factor = ""
+                if den_factor == 1:
+                    den_factor = ""
                 return "{nu}\u03C0/{de}".format(nu=num_factor*sign(angle), de=den_factor)
     return str(angle)
 
