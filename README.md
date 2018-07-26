@@ -1,6 +1,9 @@
 # ComplexNumbersProblemSolver
-Repository Containing Functions and Classes to represent complex numbers and solve common problems
-
+Repository Containing Functions and Classes to represent complex numbers and 
+solve common problems.  
+Ideally this repository should contain Python code that can be used to check
+solutions of simple problems with complex numbers, such as problems rising in
+high school or maybe first year university. 
 ## Complex class
 ### Instantiation
 This class implements a complex number. To instantiate the class you need to provide
